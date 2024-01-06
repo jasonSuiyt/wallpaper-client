@@ -2,4 +2,7 @@
 
 rust+tauri+angular
 
-![Uploading 截屏2024-01-06 20.49.36.png…]()
+
+![01.png](images%2F01.png)
+
+![02.png](images%2F02.png)
