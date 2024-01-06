@@ -18,14 +18,14 @@
     },
     "allowlist": {
       "all": false,
-      "protocol": {
-        "asset": true,
-        "assetScope": [
-          "$HOME/**"
-        ]
+      "clipboard":{
+        "all": true,
+        "readText": true,
+        "writeText": true
       },
-      "notification": {
-        "all": true
+      "shell": {
+        "all": false,
+        "open": true
       },
       "window": {
         "all": true,
@@ -38,6 +38,14 @@
         "unminimize": true,
         "startDragging": true,
         "setClosable": false
+      },
+      "dialog": {
+        "all": false,
+        "ask": true,
+        "confirm": false,
+        "message": true,
+        "open": true,
+        "save": false
       }
     },
     "bundle": {
