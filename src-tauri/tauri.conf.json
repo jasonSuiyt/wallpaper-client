@@ -1,0 +1,78 @@
+{
+  "build": {
+    "beforeDevCommand": "pnpm start --port 1420",
+    "beforeBuildCommand": "pnpm build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist/bing-wallpaper-client",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "壁纸天堂",
+    "version": "1.0.5"
+  },
+  "tauri": {
+    "macOSPrivateApi": true,
+    "systemTray": {
+      "iconPath": "icons/128x128.png",
+      "iconAsTemplate": true
+    },
+    "allowlist": {
+      "all": false,
+      "protocol": {
+        "asset": true,
+        "assetScope": [
+          "$HOME/**"
+        ]
+      },
+      "notification": {
+        "all": true
+      },
+      "window": {
+        "all": true,
+        "close": false,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true,
+        "setClosable": false
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "jasonsuiyt",
+      "icon": [
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns"
+      ]
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "",
+        "width": 1080,
+        "height": 650,
+        "minHeight": 650,
+        "minWidth": 1080,
+        "titleBarStyle": "Overlay",
+        "transparent": true
+      }
+    ],
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://gitee.com/omgjason/wallpaper_package/raw/master/package.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUyNUJFMTdFNDgzODFDOEUKUldTT0hEaElmdUZiVXRJYjZ1Ynk5bTdzSnordFNYUnBJTGs1VTZ2VGR1Vlk2UzB2UWl2L0NscXQK"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+.menu-selected {
+    @apply fill-[rgb(196,87,125)];
+    @apply text-[rgb(196,87,125)];
+}

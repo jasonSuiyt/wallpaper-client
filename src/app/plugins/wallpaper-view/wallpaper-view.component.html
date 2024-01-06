@@ -1,0 +1,32 @@
+<div #wallpaper class="overflow-auto" style="height: calc(100vh)" (scroll)="onScroll($event)">
+    <div class="grid gap-x-3 gap-y-3 p-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
+        <div *ngFor="let wallpaper of wallpaper_list" class="overflow-hidden object-cover rounded-lg shadow-md relative"
+             (click)="img_click(wallpaper)">
+            <img class="drop-shadow-[0px_0px_5px] transition duration-1000 ease-out hover:duration-1000 hover:transition scale-100 hover:scale-125 peer"
+                  [src]="getNormalImgUrl(wallpaper)" alt="">
+            <div class="absolute bottom-0 h-[30px] bg-gray-900 w-full pl-2 pr-2 opacity-70 transition duration-1000 peer-hover:opacity-100">
+                <label class="text-[10px] text-white text-s antialiased font-thin">{{wallpaper.name}}</label>
+            </div>
+            <div class="absolute w-full h-[30px] top-0 text-white bg-gray-900 opacity-70" *ngIf="wallpaper.process && wallpaper.text">
+                <div class="h-[30px]  bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"  [style.width]="wallpaper.process*100+'%'">
+                </div>
+                <div  class="h-[30px] absolute top-0  flex justify-center items-center p-1.5">
+                    <label class="text-[10px] text-white text-s antialiased font-thin">{{wallpaper.text}}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-full h-10  flex justify-center items-center" *ngIf="isLoadingEnd">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    </div>
+    <div class=" w-full h10 flex justify-center items-center antialiased" *ngIf="wallpaper_list.length != 0 && !havePage">
+        <label class=" text-slate-500 opacity-50 dark:text-white text-[10px]">~已经到底了~</label>
+    </div>
+
+    <div *ngIf="wallpaper_list.length == 0" class="w-screen h-screen flex justify-center items-center antialiased">
+        <label class=" text-slate-500 opacity-50 dark:text-white text-2xl">~哎呀 数据都去哪儿了 可以点击左下角加载~</label>
+    </div>
+</div>

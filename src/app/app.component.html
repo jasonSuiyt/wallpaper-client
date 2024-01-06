@@ -1,0 +1,16 @@
+<div  class="flex h-full">
+  <app-menu (menuClick) = "menuClick($event)"></app-menu>
+  <div class="relative w-full bg-white dark:bg-[#2f2f2f]">
+    <div [@bing] = "source" class="absolute top-0 h-screen">
+      <app-wallpaper-view  source="bing"></app-wallpaper-view>
+    </div>
+
+    <div [@microsoft] = "source" class="absolute top-0 h-screen">
+      <app-wallpaper-view source="spotlight"></app-wallpaper-view>
+    </div>
+
+    <div [@wallpapers] = "source" class="absolute top-0 h-screen">
+      <app-wallpaper-view source="wallpapers"></app-wallpaper-view>
+    </div>
+  </div>
+</div>
