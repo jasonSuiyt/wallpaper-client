@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "壁纸天堂",
+    "productName": "wallpaper-client",
     "version": "1.0.5"
   },
   "tauri": {
