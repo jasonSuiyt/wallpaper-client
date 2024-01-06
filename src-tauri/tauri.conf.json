@@ -18,6 +18,12 @@
     },
     "allowlist": {
       "all": false,
+      "protocol": {
+        "asset": true,
+        "assetScope": [
+          "$HOME/**"
+        ]
+      },
       "clipboard":{
         "all": true,
         "readText": true,
