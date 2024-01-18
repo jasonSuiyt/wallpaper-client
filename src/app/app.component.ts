@@ -7,9 +7,9 @@ import {Component, OnInit} from "@angular/core";
     styleUrls: ["./app.component.css"],
     animations: [
         trigger('bing', [
-            state('bing', style({
-                opacity: 1,
-                zIndex : 2
+            state('anime', style({
+                opacity: 0,
+                zIndex : 0
             })),
             state('microsoft', style({
                 opacity: 0,
@@ -19,15 +19,16 @@ import {Component, OnInit} from "@angular/core";
                 opacity: 0,
                 zIndex : 0
             })),
-            transition('microsoft => bing', [
-                animate('1s')
-            ]),
-            transition('wallpapers => bing', [
+            state('bing', style({
+                opacity: 1,
+                zIndex : 2
+            })),
+            transition('* => bing', [
                 animate('1s')
             ]),
         ]),
         trigger('microsoft', [
-            state('bing', style({
+            state('anime', style({
                 opacity: 0,
                 zIndex : 0
             })),
@@ -39,15 +40,16 @@ import {Component, OnInit} from "@angular/core";
                 opacity: 0,
                 zIndex : 0
             })),
-            transition('bing => microsoft', [
-                animate('1s')
-            ]),
-            transition('wallpapers => microsoft', [
+            state('bing', style({
+                opacity: 0,
+                zIndex : 0
+            })),
+            transition('* => microsoft', [
                 animate('1s')
             ]),
         ]),
         trigger('wallpapers', [
-            state('bing', style({
+            state('anime', style({
                 opacity: 0,
                 zIndex : 0
             })),
@@ -59,13 +61,35 @@ import {Component, OnInit} from "@angular/core";
                 opacity: 1,
                 zIndex : 2
             })),
-            transition('bing => wallpapers', [
+            state('bing', style({
+                opacity: 0,
+                zIndex : 0
+            })),
+            transition('* => wallpapers', [
                 animate('1s')
             ]),
-            transition('microsoft => wallpapers', [
+        ]),
+        trigger('anime', [
+            state('anime', style({
+                opacity: 1,
+                zIndex : 2
+            })),
+            state('microsoft', style({
+                opacity: 0,
+                zIndex : 0
+            })),
+            state('wallpapers', style({
+                opacity: 0,
+                zIndex : 0
+            })),
+            state('bing', style({
+                opacity: 0,
+                zIndex : 0
+            })),
+            transition('* => anime', [
                 animate('1s')
             ]),
-        ])
+        ]),
     ]
 })
 export class AppComponent implements OnInit {

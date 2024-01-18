@@ -8,29 +8,7 @@ import { isPermissionGranted, requestPermission, sendNotification } from '@tauri
 @Component({
     selector: 'app-menu',
     templateUrl: './menu.component.html',
-    styleUrls: ['./menu.component.css'],
-    animations:[
-        trigger('selectTag', [
-            state('bing', style({
-                top : '24px'
-            })),
-            state('microsoft', style({
-                top : '88px'
-            })),
-            state('wallpapers', style({
-                top : '152px'
-            })),
-            transition('bing => *', [
-                animate(500)
-            ]),
-            transition('microsoft => *', [
-                animate(500)
-            ]),
-            transition('wallpapers => *', [
-                animate(500)
-            ])
-        ])
-    ]
+    styleUrls: ['./menu.component.css']
 })
 export class MenuComponent implements OnInit {
 
@@ -41,13 +19,16 @@ export class MenuComponent implements OnInit {
 
     }
 
+    menuIndex = 0;
+
     @Output()
     menuClick: EventEmitter<String> = new EventEmitter();
 
     menuSelected: string = 'bing';
 
 
-    async onMenuClick(_: MouseEvent, url: string) {
+    async onMenuClick(_: MouseEvent, url: string, index: number) {
+        this.menuIndex = index;
         this.menuSelected = url;
         // await this.router.navigate([url]);
         this.menuClick.emit(url);
@@ -60,6 +41,8 @@ export class MenuComponent implements OnInit {
             await invoke("refresh", {source: 'bing'});
         } else if (this.menuSelected == 'microsoft') {
             await invoke("refresh", {source: 'spotlight'});
+        } else if (this.menuSelected == 'anime') {
+            await invoke("refresh", {source: 'anime'});
         } else {
             await invoke("refresh", {source: 'wallpapers'});
         }

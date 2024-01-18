@@ -1,16 +1,20 @@
 use std::fs;
 use std::path::Path;
 use std::time::Duration;
+
 use anyhow::Context;
 use chrono::{Local, NaiveDate};
 use htmler::Selector;
 use lazy_static::lazy_static;
 use reqwest::StatusCode;
+
 use crate::dao::models::NewBing;
 
 lazy_static! {
     static ref SPOTLIGHT_UHD_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/spotlight/images/uhd/");
     static ref SPOTLIGHT_NORMAL_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/spotlight/images/normal/");
+
+
 
     static ref SPOTLIGHT_ARTICLE_SELECTOR: Selector = htmler::Selector::parse(r#"article"#).unwrap();
     static ref SPOTLIGHT_DATE_SELECTOR: Selector = htmler::Selector::parse(r#"span[class="date"]"#).unwrap();
@@ -30,6 +34,16 @@ lazy_static! {
     static ref BING_PAGE_NUMBERS_SELECTOR: Selector = htmler::Selector::parse(r#"a[class="page-link"]"#).unwrap();
 
 
+
+    static ref ANIME_UHD_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/anime/images/uhd/");
+    static ref ANIME_NORMAL_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/anime/images/normal/");
+    static ref NAIME_PAGE_NUMBERS_SELECTOR: Selector = Selector::parse(r#"h2"#).unwrap();
+    static ref NAIME_LI_SELECTOR: Selector = htmler::Selector::parse(r#"li"#).unwrap();
+    static ref ANIME_NAME_SELECTOR: Selector =  htmler::Selector::parse(r#"span[class="wall-res"]"#).unwrap();
+    static ref ANIME_SECTION_SELECTOR: Selector =  htmler::Selector::parse(r#"section[class="thumb-listing-page"]"#).unwrap();
+    static ref ANIME_IMG_SELECTOR: Selector =  htmler::Selector::parse(r#"img[class="lazyload"]"#).unwrap();
+
+
     static ref WALL_UHD_PATH: String = format!("{}{}", env!("HOME") ,"/wallpaper/wall/images/uhd/");
     static ref WALL_NORMAL_PATH: String =format!("{}{}", env!("HOME") , "/wallpaper/wall/images/normal/");
 
@@ -41,6 +55,7 @@ lazy_static! {
 
 }
 
+
 pub async fn get_total_page(source: &str) -> i32 {
     if source == "bing" {
         return bing_total_page().await;
@@ -48,8 +63,96 @@ pub async fn get_total_page(source: &str) -> i32 {
         return spotlight_total_page().await;
     } else if source == "wallpapers" {
         return wallpapers_total_page().await;
+    } else if source == "anime" {
+        return anime_total_page().await;
     }
     return 0;
+}
+
+pub async fn anime_total_page() -> i32 {
+    let client = reqwest::Client::new();
+    if let Ok(res) = client
+        .get("https://wallhaven.cc/search?categories=010&purity=010&resolutions=2560x1080%2C3440x1440%2C3840x1600%2C1920x1080%2C2560x1440%2C3840x2160&sorting=favorites&order=desc&ai_art_filter=1&page=2")
+        .timeout(*HTTP_TIME_OUT)
+        .send().await {
+        if res.status() == StatusCode::OK {
+            let html_dom = res.text().await.unwrap();
+            let html = htmler::Html::parse_fragment(&html_dom);
+            if let Some(total_page) = html.select(&NAIME_PAGE_NUMBERS_SELECTOR).map(|x| x.inner_html()).map(|x| {
+                if x.contains("thumb-listing-page-num") {
+                    return x.split("/").last().unwrap().trim().parse::<i32>().unwrap();
+                }
+                return 0;
+            }).max() {
+                return total_page;
+            }
+        }
+    }
+    return 1;
+}
+
+
+pub async fn anime_request(page_size: i32) -> anyhow::Result<Vec<NewBing>, anyhow::Error> {
+    let client = reqwest::Client::new();
+    let mut new_bing_vec: Vec<NewBing> = vec![];
+
+    create_dir(ANIME_NORMAL_PATH.clone());
+    create_dir(ANIME_UHD_PATH.clone());
+
+
+    if let Ok(res) = client.get(format!("https://wallhaven.cc/search?categories=010&purity=010&resolutions=2560x1080%2C3440x1440%2C3840x1600%2C1920x1080%2C2560x1440%2C3840x2160&sorting=favorites&order=desc&ai_art_filter=1&page={}", &page_size)).timeout(*HTTP_TIME_OUT).send().await {
+        if res.status() == StatusCode::OK {
+            let html_dom = res.text().await.unwrap();
+            let html = htmler::Html::parse_fragment(&html_dom);
+            let node = html.select(&ANIME_SECTION_SELECTOR).next().unwrap();
+            let li = node.select(&NAIME_LI_SELECTOR);
+            for article in li {
+                let name = article.select(&ANIME_NAME_SELECTOR.clone()).next().with_context(|| format!("read name url err {page_size}"))?.inner_html();
+                if let None = article.select(&SPOTLIGHT_IMG_SELECTOR).next() {
+                    println!("{}", article.inner_html());
+                }
+                if let Some(img_node) = article.select(&ANIME_IMG_SELECTOR).next() {
+                    let png = article.select(&Selector::parse(r#"span[class="png"]"#).unwrap()).next();
+                    let mut name_ext= "".to_string();
+                    if png.is_some(){
+                        name_ext = png.unwrap().text().next().unwrap().to_string();
+                    }
+                    let normal_img_url = img_node.get_attribute("data-src");
+                    let img_name = normal_img_url.split("/").last().unwrap();
+                    let uhd_img_url = get_anime_hd_url(normal_img_url.to_string(), name_ext);
+                    let uhd_file_path = format!("{}{}", ANIME_UHD_PATH.clone(), img_name);
+                    let normal_file_path = format!("{}{}", ANIME_NORMAL_PATH.clone(), img_name);
+                    new_bing_vec.push(NewBing {
+                        name,
+                        url: normal_img_url.to_string(),
+                        uhd_url: uhd_img_url.to_string(),
+                        uhd_file_path,
+                        source: "anime".to_string(),
+                        normal_file_path: normal_file_path.clone(),
+                        created_date: Local::now().date_naive(),
+                    });
+                }
+            }
+        }
+    }
+
+    Ok(new_bing_vec)
+}
+
+fn get_anime_hd_url(normal_url: String, name_ext: String) -> String {
+    let string = normal_url.replace("th.wallhaven.cc/small", "w.wallhaven.cc/full");
+    let name = string.split("/").last().unwrap();
+    return if name_ext.is_empty() {
+        let url = &string[0..string.len() - name.len()];
+        let name = format!("wallhaven-{}", name);
+        format!("{}{}", url, name)
+    } else {
+        let url = &string[0..string.len() - name.len()];
+        let name = name.split(".").next().unwrap();
+        let name = format!("wallhaven-{}.{}", name, name_ext.to_lowercase());
+        format!("{}{}", url, name)
+    }
+
 }
 
 pub async fn spotlight_total_page() -> i32 {
@@ -92,8 +195,8 @@ pub async fn spotlight_request(page_size: i32) -> anyhow::Result<Vec<NewBing>, a
                     let img_name = uhd_img_url.split("/").last().unwrap();
 
 
-                    let uhd_file_path = format!("{}{}",SPOTLIGHT_UHD_PATH.clone(), img_name);
-                    let normal_file_path = format!("{}{}",SPOTLIGHT_NORMAL_PATH.clone(), img_name);
+                    let uhd_file_path = format!("{}{}", SPOTLIGHT_UHD_PATH.clone(), img_name);
+                    let normal_file_path = format!("{}{}", SPOTLIGHT_NORMAL_PATH.clone(), img_name);
 
                     new_bing_vec.push(NewBing {
                         name,
@@ -251,91 +354,3 @@ fn create_dir(path: String) {
 }
 
 
-#[cfg(test)]
-mod tests {
-    use super::{bing_request, bing_total_page, spotlight_total_page, wallpapers_total_page, wallpapers_request};
-    use super::spotlight_request;
-    use std::sync::Arc;
-    use tokio::sync::Mutex;
-    use tokio::time::Duration;
-    use std::path::Path;
-    use std::fs::File;
-    use futures_util::StreamExt;
-    use std::io::Write;
-
-    #[actix_rt::test]
-    async fn bing_request_test() {
-        let bing_vec = bing_request(1).await;
-        println!("{:#?}", bing_vec);
-        assert!(bing_vec.unwrap().len() > 0)
-    }
-
-    #[actix_rt::test]
-    async fn window_request_test() {
-        let count = Arc::new(Mutex::new(0));
-        for i in 1..501 {
-            let my_count = Arc::clone(&count);
-            tokio::spawn(async move {
-                println!("refresh start {i}");
-                let spotlight_vec = spotlight_request(i).await.unwrap();
-                println!("spotlight_vec_len={}", spotlight_vec.len());
-
-                for x in &spotlight_vec {
-                    if Path::new(&x.normal_file_path.clone()).exists() == false {
-                        let client = reqwest::Client::new();
-                        if let Ok(res) = client.get(&x.url).send().await {
-                            let content_length = res.content_length().unwrap() as f64;
-                            let mut file = File::create(&x.normal_file_path).unwrap();
-                            let mut stream = res.bytes_stream();
-                            let mut download_size: u64 = 0;
-                            while let Some(item) = stream.next().await {
-                                let bytes: &[u8] = &item.unwrap();
-                                let size = bytes.len() as u64;
-                                download_size += size;
-                                let download_process = download_size as f64 / content_length;
-                                println!("download_process = {}", download_process);
-                                file.write_all(&bytes).unwrap();
-                            }
-                        }
-                    }
-                }
-                let mut lock = my_count.lock().await;
-                println!("refresh end {i}");
-                *lock += 1;
-            });
-        }
-
-        loop {
-            if *count.lock().await >= 500 {
-                println!("refresh end all");
-                break;
-            }
-            tokio::time::sleep(Duration::from_millis(100)).await;
-        }
-    }
-
-    #[actix_rt::test]
-    async fn spotlight_total_page_test() {
-        let total_page = spotlight_total_page().await;
-        println!("{:#?}", total_page);
-    }
-
-    #[actix_rt::test]
-    async fn bing_total_page_test() {
-        let total_page = bing_total_page().await;
-        println!("{:#?}", total_page);
-    }
-
-
-    #[actix_rt::test]
-    async fn wallpapers_total_page_test() {
-        let total_page = wallpapers_total_page().await;
-        println!("{:#?}", total_page);
-    }
-
-    #[actix_rt::test]
-    async fn wallpapers_request_test() {
-        let total_page = wallpapers_request(1).await;
-        println!("{:#?}", total_page);
-    }
-}

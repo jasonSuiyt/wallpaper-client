@@ -11,10 +11,10 @@ mod system;
 mod router;
 
 fn main() {
-    db::init();
     tauri::Builder::default()
         .setup(|_app| {
             db::init();
+
             Ok({})
         })
         .system_tray(system::tray::system_tray())

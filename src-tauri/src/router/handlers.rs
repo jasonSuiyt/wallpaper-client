@@ -5,7 +5,7 @@ use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+use reqwest::header::{ACCEPT, HeaderMap, HeaderValue, USER_AGENT};
 use crate::dao::models::{Bing, DownloadPayload};
 use crate::dao::wallpaper_dao;
 use crate::service::get_img_service;
@@ -15,6 +15,13 @@ use futures_util::StreamExt;
 use tauri::Window;
 use crate::service::trans_service::translate;
 use std::fs;
+use lazy_static::lazy_static;
+use reqwest::Response;
+use tokio::runtime::Runtime;
+
+
+
+
 
 #[tauri::command]
 pub async fn refresh(window: Window, source: String) {
@@ -24,19 +31,23 @@ pub async fn refresh(window: Window, source: String) {
     for i in 1..total_page + 1 {
         let my_count = Arc::clone(&count);
         let source = source.clone();
+
         tokio::spawn(async move {
             let bing_vec_res;
             if source == "bing" {
                 bing_vec_res = get_img_service::bing_request(i).await;
             } else if source == "spotlight" {
                 bing_vec_res = get_img_service::spotlight_request(i).await;
+            } else if source == "anime" {
+                println!("page={}", i);
+                bing_vec_res = get_img_service::anime_request(i).await;
             } else {
                 bing_vec_res = get_img_service::wallpapers_request(i).await;
             }
 
             match bing_vec_res {
                 Ok(mut bing_vec) => {
-                    if source != "bing" {
+                    if source != "bing" && source != "anime" {
                         for x in &mut bing_vec {
                             if Path::new(&x.normal_file_path).exists() == false {
                                 let result = translate(x.name.clone()).await;
@@ -70,6 +81,8 @@ pub async fn refresh(window: Window, source: String) {
                 }
             }
         });
+
+
     }
 
     loop {
@@ -112,28 +125,31 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
         }).unwrap();
         let client = reqwest::Client::new();
         let mut headers = HeaderMap::new();
-        headers.insert(USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"));
-        if let Ok(res) = client.get(&wallpaper.uhd_url.clone()).headers(headers).timeout(Duration::from_secs(360)).send().await {
-            let content_length = res.content_length().unwrap() as f64;
-            let mut file = File::create(&wallpaper.uhd_file_path).unwrap();
-            let mut stream = res.bytes_stream();
-            let mut download_size: u64 = 0;
-            while let Some(item) = stream.next().await {
-                let bytes: &[u8] = &item.unwrap();
-                let size = bytes.len() as u64;
-                download_size += size;
-                let download_process = download_size as f64 / content_length;
-                let download_process_text = download_process * 100f64;
-                window.emit("download_progress", DownloadPayload {
-                    id: wallpaper.id.clone(),
-                    text: format!("下载中 {:.2} %", download_process_text),
-                    process: download_process,
-                }).unwrap();
-                file.write_all(&bytes).unwrap();
-            }
-        } else {
-            println!("下载壁纸失败");
-        }
+        headers.insert(USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"));
+         match  client.get(&wallpaper.uhd_url.clone()).headers(headers).send().await {
+             Ok(res) => {
+                 let content_length = res.content_length().unwrap() as f64;
+                 let mut file = File::create(&wallpaper.uhd_file_path).unwrap();
+                 let mut stream = res.bytes_stream();
+                 let mut download_size: u64 = 0;
+                 while let Some(item) = stream.next().await {
+                     let bytes: &[u8] = &item.unwrap();
+                     let size = bytes.len() as u64;
+                     download_size += size;
+                     let download_process = download_size as f64 / content_length;
+                     let download_process_text = download_process * 100f64;
+                     window.emit("download_progress", DownloadPayload {
+                         id: wallpaper.id.clone(),
+                         text: format!("下载中 {:.2} %", download_process_text),
+                         process: download_process,
+                     }).unwrap();
+                     file.write_all(&bytes).unwrap();
+                 }
+             }
+             Err(e) => {
+                 eprintln!("{}", e);
+             }
+         }
     }
 
     if Path::new(&wallpaper.normal_file_path).exists() == false {
