@@ -28,9 +28,9 @@ pub(crate) fn find_all(current_page:i64, other_source: &str) -> anyhow::Result<P
     })
 }
 
-pub(crate) fn insert(wallpaper_vec: Vec<NewBing>)  {
+pub(crate) fn insert(wallpaper_vec: Vec<NewBing>) -> bool {
     if wallpaper_vec.len() == 0 {
-        return;
+        return false;
     }
 
     let mut connection = db::establish_db_connection();
@@ -41,8 +41,14 @@ pub(crate) fn insert(wallpaper_vec: Vec<NewBing>)  {
         .expect("Error loading posts");
 
     let need_wallpaper_vec = wallpaper_vec.iter().filter(|item| wallpaper_all.iter().any(|x| x.url == item.url) == false).map(|x|x.clone()).collect::<Vec<_>>();
+    let mut flag = true;
+    if need_wallpaper_vec.len() < wallpaper_vec.len() {
+        flag = false;
+    }
 
     diesel::insert_into(bing::table()).values(&need_wallpaper_vec).execute(&mut connection).unwrap();
+
+    return flag;
 
 }
 

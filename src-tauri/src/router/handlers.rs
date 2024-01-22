@@ -6,7 +6,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use reqwest::header::{ACCEPT, HeaderMap, HeaderValue, USER_AGENT};
-use crate::dao::models::{Bing, DownloadPayload};
+use crate::dao::models::{Bing, DownloadPayload, NewBing};
 use crate::dao::wallpaper_dao;
 use crate::service::get_img_service;
 use tokio::time::Duration;
@@ -15,12 +15,6 @@ use futures_util::StreamExt;
 use tauri::Window;
 use crate::service::trans_service::translate;
 use std::fs;
-use lazy_static::lazy_static;
-use reqwest::Response;
-use tokio::runtime::Runtime;
-
-
-
 
 
 #[tauri::command]
@@ -28,48 +22,25 @@ pub async fn refresh(window: Window, source: String) {
     let total_page = get_img_service::get_total_page(&source).await;
     println!("total_page={}", total_page);
     let count = Arc::new(Mutex::new(0));
+    let page = wallpaper_dao::find_all(1, &source).unwrap();
+    if page.data.len() > 0 {
+        refresh_sync(&window, &source, total_page).await;
+    }else {
+        refresh_async(window, source, total_page, &count).await;
+    }
+}
+
+async fn refresh_async(window: Window, source: String, total_page: i32, count: &Arc<Mutex<i32>>) {
     for i in 1..total_page + 1 {
         let my_count = Arc::clone(&count);
         let source = source.clone();
 
         tokio::spawn(async move {
-            let bing_vec_res;
-            if source == "bing" {
-                bing_vec_res = get_img_service::bing_request(i).await;
-            } else if source == "spotlight" {
-                bing_vec_res = get_img_service::spotlight_request(i).await;
-            } else if source == "anime" {
-                println!("page={}", i);
-                bing_vec_res = get_img_service::anime_request(i).await;
-            } else {
-                bing_vec_res = get_img_service::wallpapers_request(i).await;
-            }
-
+            let bing_vec_res = get_image_vec(i, &source).await;
             match bing_vec_res {
                 Ok(mut bing_vec) => {
-                    if source != "bing" && source != "anime" {
-                        for x in &mut bing_vec {
-                            if Path::new(&x.normal_file_path).exists() == false {
-                                let result = translate(x.name.clone()).await;
-                                match result {
-                                    Ok(result) => {
-                                        x.name = result;
-                                    }
-                                    Err(_) => {}
-                                }
-                            }
-                        }
-                    }
-                    for x in &bing_vec {
-                        if Path::new(&x.normal_file_path).exists() == false {
-                            let client = reqwest::Client::new();
-                            if let Ok(res) = client.get(x.to_owned().url).send().await {
-                                if let Ok(bytes) = res.bytes().await {
-                                    fs::write(&x.normal_file_path, bytes).unwrap();
-                                }
-                            }
-                        }
-                    }
+                    translate_title(&source, &mut bing_vec).await;
+                    save_normal_img(&mut bing_vec).await;
                     let mut lock = my_count.lock().await;
                     wallpaper_dao::insert(bing_vec);
                     *lock += 1;
@@ -81,8 +52,6 @@ pub async fn refresh(window: Window, source: String) {
                 }
             }
         });
-
-
     }
 
     loop {
@@ -97,6 +66,75 @@ pub async fn refresh(window: Window, source: String) {
         }
         tokio::time::sleep(Duration::from_millis(1000)).await;
         println!("{}", *count.lock().await)
+    }
+}
+
+async fn get_image_vec(i: i32, source: &String) -> Result<Vec<NewBing>, anyhow::Error> {
+    let bing_vec_res;
+    if source == "bing" {
+        bing_vec_res = get_img_service::bing_request(i).await;
+    } else if source == "spotlight" {
+        bing_vec_res = get_img_service::spotlight_request(i).await;
+    } else if source == "anime" {
+        println!("page={}", i);
+        bing_vec_res = get_img_service::anime_request(i).await;
+    } else {
+        bing_vec_res = get_img_service::wallpapers_request(i).await;
+    }
+    bing_vec_res
+}
+
+async fn refresh_sync(window: &Window, source: &String, total_page: i32) {
+    for i in 1..total_page + 1 {
+        let bing_vec_res = get_image_vec(i, &source).await;
+        match bing_vec_res {
+            Ok(mut bing_vec) => {
+                translate_title(source, &mut bing_vec).await;
+                save_normal_img(&mut bing_vec).await;
+                let is_new = wallpaper_dao::insert(bing_vec);
+                if !is_new {
+                    break;
+                }
+            }
+            Err(err) => {
+                println!("异常信息 {:?}", err);
+            }
+        }
+    }
+
+    if source == "bing" {
+        window.emit("bing_refresh_finished", true).unwrap();
+    } else {
+        window.emit("spotlight_refresh_finished", true).unwrap();
+    }
+}
+
+async fn translate_title(source: &str, bing_vec: &mut Vec<NewBing>) {
+    if source != "bing" && source != "anime" {
+        for x in  bing_vec {
+            if Path::new(&x.normal_file_path).exists() == false {
+                let result = translate(x.name.clone()).await;
+                match result {
+                    Ok(result) => {
+                        x.name = result;
+                    }
+                    Err(_) => {}
+                }
+            }
+        }
+    }
+}
+
+async fn save_normal_img(bing_vec: &mut Vec<NewBing>) {
+    for x in bing_vec {
+        if Path::new(&x.normal_file_path).exists() == false {
+            let client = reqwest::Client::new();
+            if let Ok(res) = client.get(x.to_owned().url).send().await {
+                if let Ok(bytes) = res.bytes().await {
+                    fs::write(&x.normal_file_path, bytes).unwrap();
+                }
+            }
+        }
     }
 }
 
