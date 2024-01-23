@@ -209,24 +209,13 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
         text: "设置壁纸中".to_string(),
     }).unwrap();
 
-    match run(
-        "osascript",
-        &[
-            "-e",
-            &format!(
-                r#"tell application "System Events" to tell every desktop to set picture to {}"#,
-                enquote::enquote('"', &wallpaper.uhd_file_path),
-            ),
-        ],
-    ) {
+    match wallpaper::set_from_path(&wallpaper.uhd_file_path) {
         Ok(_) => {}
         Err(e) => {
             println!("{}", e);
         }
     }
 
-
-    tokio::time::sleep(Duration::from_millis(1000)).await;
     window.emit("download_progress", DownloadPayload {
         id: wallpaper.id.clone(),
         process: 0f64,
@@ -236,25 +225,7 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
 }
 
 
-type Res<T> = Result<T, Box<dyn Error>>;
 
-
-#[cfg(unix)]
-fn run(command: &str, args: &[&str]) -> Res<String> {
-    use std::process::Command;
-
-    let output = Command::new(command).args(args).output()?;
-    if output.status.success() {
-        Ok(String::from_utf8(output.stdout)?.trim().into())
-    } else {
-        Err(format!(
-            "{} exited with status code {}",
-            command,
-            output.status.code().unwrap_or(-1),
-        )
-            .into())
-    }
-}
 
 #[cfg(test)]
 mod tests {

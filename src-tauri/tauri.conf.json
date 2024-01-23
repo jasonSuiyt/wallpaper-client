@@ -30,8 +30,18 @@
         "writeText": true
       },
       "shell": {
-        "all": false,
+        "all": true,
         "open": true
+      },
+      "http":{
+        "all": true,
+        "request": true
+      },
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all": true
       },
       "window": {
         "all": true,
