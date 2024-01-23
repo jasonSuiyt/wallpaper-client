@@ -42,7 +42,17 @@
         "all": true
       },
       "fs": {
-        "all": true
+        "all": true,
+        "scope": ["$HOME/**"],
+        "readFile": true,
+        "writeFile": true,
+        "readDir": true,
+        "copyFile": true,
+        "createDir": true,
+        "removeDir": true,
+        "removeFile": true,
+        "renameFile": true,
+        "exists": true
       },
       "window": {
         "all": true,
