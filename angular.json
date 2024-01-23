@@ -6,7 +6,7 @@
     "analytics": false
   },
   "projects": {
-    "bing-wallpaper-client": {
+    "wallpaper-client": {
       "root": "",
       "projectType": "application",
       "sourceRoot": "src",
@@ -15,7 +15,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/bing-wallpaper-client",
+            "outputPath": "dist/wallpaper-client",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["zone.js"],

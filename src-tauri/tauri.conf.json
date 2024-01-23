@@ -3,7 +3,7 @@
     "beforeDevCommand": "pnpm start --port 1420",
     "beforeBuildCommand": "pnpm build",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist/bing-wallpaper-client",
+    "distDir": "../dist/wallpaper-client",
     "withGlobalTauri": false
   },
   "package": {
@@ -20,6 +20,7 @@
       "all": false,
       "protocol": {
         "asset": true,
+        "all": true,
         "assetScope": [
           "$HOME/**"
         ]
@@ -41,12 +42,7 @@
         "all": true
       },
       "fs": {
-        "all": true,
-        "createDir": true,
-        "readFile": true,
-        "writeFile": true,
-        "readDir": true,
-        "exists": true
+        "all": true
       },
       "window": {
         "all": true,
@@ -61,12 +57,12 @@
         "setClosable": false
       },
       "dialog": {
-        "all": false,
+        "all": true,
         "ask": true,
-        "confirm": false,
+        "confirm": true,
         "message": true,
         "open": true,
-        "save": false
+        "save": true
       }
     },
     "bundle": {
