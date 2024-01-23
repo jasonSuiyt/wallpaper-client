@@ -348,6 +348,8 @@ pub async fn bing_request(page_size: i32) -> anyhow::Result<Vec<NewBing>, anyhow
 }
 
 fn create_dir(path: String) {
+    println!("path: {}", path);
+    println!("{}", Path::exists(path.as_ref()));
     if Path::exists(path.as_ref()) == false {
         fs::create_dir_all(&path).expect("TODO: panic message");
     }
