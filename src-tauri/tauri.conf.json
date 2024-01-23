@@ -41,7 +41,12 @@
         "all": true
       },
       "fs": {
-        "all": true
+        "all": true,
+        "createDir": true,
+        "readFile": true,
+        "writeFile": true,
+        "readDir": true,
+        "exists": true
       },
       "window": {
         "all": true,
