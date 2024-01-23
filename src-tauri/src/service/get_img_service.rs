@@ -11,8 +11,8 @@ use reqwest::StatusCode;
 use crate::dao::models::NewBing;
 
 lazy_static! {
-    static ref SPOTLIGHT_UHD_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/spotlight/images/uhd/");
-    static ref SPOTLIGHT_NORMAL_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/spotlight/images/normal/");
+    static ref SPOTLIGHT_UHD_PATH: String = format!("{}{}",  dirs::home_dir().unwrap().to_str().unwrap(), "/wallpaper/spotlight/images/uhd/");
+    static ref SPOTLIGHT_NORMAL_PATH: String = format!("{}{}", dirs::home_dir().unwrap().to_str().unwrap(), "/wallpaper/spotlight/images/normal/");
 
 
 
@@ -23,8 +23,8 @@ lazy_static! {
     static ref SPOTLIGHT_PAGE_NUMBERS_SELECTOR: Selector = htmler::Selector::parse(r#"a[class="page-numbers"]"#).unwrap();
 
 
-    static ref BING_UHD_PATH: String = format!("{}{}",  env!("HOME"),  "/wallpaper/bing/images/uhd/");
-    static ref BING_NORMAL_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/bing/images/normal/");
+    static ref BING_UHD_PATH: String = format!("{}{}",  dirs::home_dir().unwrap().to_str().unwrap(),  "/wallpaper/bing/images/uhd/");
+    static ref BING_NORMAL_PATH: String = format!("{}{}", dirs::home_dir().unwrap().to_str().unwrap(), "/wallpaper/bing/images/normal/");
 
     static ref BING_IMG_LIST_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="col-md-6 col-lg-4"]"#).unwrap();
     static ref BING_IMG_ROW_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="image-list__container"]"#).unwrap();
@@ -35,8 +35,8 @@ lazy_static! {
 
 
 
-    static ref ANIME_UHD_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/anime/images/uhd/");
-    static ref ANIME_NORMAL_PATH: String = format!("{}{}", env!("HOME"), "/wallpaper/anime/images/normal/");
+    static ref ANIME_UHD_PATH: String = format!("{}{}", dirs::home_dir().unwrap().to_str().unwrap(), "/wallpaper/anime/images/uhd/");
+    static ref ANIME_NORMAL_PATH: String = format!("{}{}", dirs::home_dir().unwrap().to_str().unwrap(), "/wallpaper/anime/images/normal/");
     static ref NAIME_PAGE_NUMBERS_SELECTOR: Selector = Selector::parse(r#"h2"#).unwrap();
     static ref NAIME_LI_SELECTOR: Selector = htmler::Selector::parse(r#"li"#).unwrap();
     static ref ANIME_NAME_SELECTOR: Selector =  htmler::Selector::parse(r#"span[class="wall-res"]"#).unwrap();
@@ -44,8 +44,8 @@ lazy_static! {
     static ref ANIME_IMG_SELECTOR: Selector =  htmler::Selector::parse(r#"img[class="lazyload"]"#).unwrap();
 
 
-    static ref WALL_UHD_PATH: String = format!("{}{}", env!("HOME") ,"/wallpaper/wall/images/uhd/");
-    static ref WALL_NORMAL_PATH: String =format!("{}{}", env!("HOME") , "/wallpaper/wall/images/normal/");
+    static ref WALL_UHD_PATH: String = format!("{}{}", dirs::home_dir().unwrap().to_str().unwrap() ,"/wallpaper/wall/images/uhd/");
+    static ref WALL_NORMAL_PATH: String =format!("{}{}", dirs::home_dir().unwrap().to_str().unwrap() , "/wallpaper/wall/images/normal/");
 
     static ref WALL_PAGE_NUMBERS_SELECTOR: Selector = htmler::Selector::parse(r#"p[class="pages"]"#).unwrap();
     static ref WALL_PICS_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="pics"]"#).unwrap();
@@ -349,7 +349,7 @@ pub async fn bing_request(page_size: i32) -> anyhow::Result<Vec<NewBing>, anyhow
 
 fn create_dir(path: String) {
     println!("path: {}", path);
-    println!("home: {}", env!("HOME"));
+    println!("home: {}", dirs::home_dir().unwrap().to_str().unwrap());
     println!("{}", Path::exists(path.as_ref()));
     if Path::exists(path.as_ref()) == false {
         fs::create_dir_all(&path).expect("TODO: panic message");
