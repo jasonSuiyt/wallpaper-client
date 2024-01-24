@@ -11,7 +11,7 @@ use crate::dao::wallpaper_dao;
 use crate::service::get_img_service;
 use tokio::time::Duration;
 
-use futures_util::StreamExt;
+use futures_util::{AsyncReadExt, StreamExt};
 use tauri::Window;
 use crate::service::trans_service::translate;
 use std::fs;
@@ -167,11 +167,14 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
          match  client.get(&wallpaper.uhd_url.clone()).headers(headers).send().await {
              Ok(res) => {
                  let content_length = res.content_length().unwrap() as f64;
-                 let mut file = File::create(&wallpaper.uhd_file_path).unwrap();
                  let mut stream = res.bytes_stream();
                  let mut download_size: u64 = 0;
+                 let mut all_bytes = vec![];
                  while let Some(item) = stream.next().await {
                      let bytes: &[u8] = &item.unwrap();
+                     bytes[..bytes.len()].iter().for_each(|x|{
+                         all_bytes.push(x.clone());
+                     });
                      let size = bytes.len() as u64;
                      download_size += size;
                      let download_process = download_size as f64 / content_length;
@@ -181,8 +184,14 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
                          text: format!("下载中 {:.2} %", download_process_text),
                          process: download_process,
                      }).unwrap();
-                     file.write_all(&bytes).unwrap();
                  }
+                 match File::create(&wallpaper.uhd_file_path) {
+                     Ok(mut file) => {
+                         file.write_all(all_bytes.as_slice()).unwrap();
+                     }
+                     Err(_) => {}
+                 }
+
              }
              Err(e) => {
                  eprintln!("{}", e);
