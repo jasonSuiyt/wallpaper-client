@@ -172,9 +172,7 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
                  let mut all_bytes = vec![];
                  while let Some(item) = stream.next().await {
                      let bytes: &[u8] = &item.unwrap();
-                     bytes[..bytes.len()].iter().for_each(|x|{
-                         all_bytes.push(x.clone());
-                     });
+                     bytes[..bytes.len()].iter().for_each(|x|all_bytes.push(x.clone()));
                      let size = bytes.len() as u64;
                      download_size += size;
                      let download_process = download_size as f64 / content_length;
