@@ -1,6 +1,6 @@
 <div  class="flex h-full">
   <app-menu (menuClick) = "menuClick($event)"></app-menu>
-  <div class="relative w-full backdrop-blur-sm bg-white/30 dark:bg-[#2f2f2f]/50">
+  <div class="relative w-full  bg-white dark:bg-[#2f2f2f]">
     <div   class="absolute top-0 h-screen z-0 opacity-0 {{source=='bing'?'page-selected':''}}">
       <app-wallpaper-view  source="bing"></app-wallpaper-view>
     </div>
