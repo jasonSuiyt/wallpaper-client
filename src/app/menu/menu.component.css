@@ -12,5 +12,5 @@
 }
 
 .icon{
-    @apply  text-stone-950 text-[30px];
+    @apply  text-stone-950 text-[30px] antialiased;
 }
