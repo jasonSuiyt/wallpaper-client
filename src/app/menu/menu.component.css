@@ -1,10 +1,10 @@
 .menu-selected {
     transition: fill 1s;
-    @apply fill-[rgb(196,87,125)];
-    @apply text-[rgb(196,87,125)];
+    @apply fill-orange-600;
+    @apply text-orange-600;
 }
 
 .menu-active{
-    transition: top .5s;
+    transition: top .5s cubic-bezier(0.1, 0.7, 1, 0.1);
     /*transition-timing-function: cubic-bezier(0.1, 0.7, 1, 0.1);*/
 }

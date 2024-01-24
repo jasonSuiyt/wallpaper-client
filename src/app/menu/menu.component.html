@@ -1,11 +1,11 @@
 <div data-tauri-drag-region
-     class="backdrop-blur-sm bg-[rgba(50,50,50,.7)] w-16 h-full flex pt-6 flex-col justify-between shadow-xl shadow-gray-400">
+     class="backdrop-blur-sm bg-white/1 w-16 h-full flex pt-6 flex-col justify-between shadow-xl shadow-gray-400">
     <div>
         <ul data-tauri-drag-region class="relative">
-            <div  class="absolute w-[2px]  bg-[rgb(196,87,125)] h-16 left-0 menu-active" [style.top]="menuIndex*64+'px'"></div>
+            <div  class="absolute w-[2px]  bg-orange-600 h-16 left-0 menu-active" [style.top]="menuIndex*64+'px'"></div>
             <li class="w-16 h-16 flex flex-col justify-center items-center  select-none relative"
                 (click)="$event.stopPropagation();onMenuClick($event, 'bing', 0)">
-                <svg class="w-7 h-7  fill-[#d1d5db]   {{menuSelected=='bing'?'menu-selected':''}}"
+                <svg class="w-7 h-7  fill-stone-950   {{menuSelected=='bing'?'menu-selected':''}}"
                      viewBox="0 0 1024 1024"
                      xmlns="http://www.w3.org/2000/svg" width="256" height="256">
                     <path
@@ -15,34 +15,34 @@
                             d="M409.463467 255.3856l113.732266 238.933333 138.8544 56.866134 259.413334-139.400534-506.0608-156.330666z"
                     ></path>
                 </svg>
-                <label class="text-white text-[10px] antialiased {{menuSelected=='bing'?'menu-selected':''}}">必应</label>
+                <label class="text-stone-950  text-[10px] antialiased {{menuSelected=='bing'?'menu-selected':''}}">必应</label>
             </li>
             <li class="w-16 h-16 flex flex-col justify-center items-center  select-none"
                 (click)="$event.stopPropagation();onMenuClick($event, 'microsoft',1)">
-                <svg class="w-6 h-6  fill-[#d1d5db]   {{menuSelected=='microsoft'?'menu-selected':''}}"
+                <svg class="w-6 h-6  fill-stone-950   {{menuSelected=='microsoft'?'menu-selected':''}}"
                      viewBox="0 0 1024 1024"
                      xmlns="http://www.w3.org/2000/svg">
                     <path
                             d="M0 139.392L409.429333 81.92l0.170667 407.210667-409.216 2.389333L0 139.392z m409.301333 395.818667L409.6 942.08 0 884.181333V532.48l409.301333 2.730667z m41.258667-454.186667L1024 0v487.125333l-573.44 4.394667V81.024zM1024 533.333333L1023.872 1024l-572.501333-79.274667-0.810667-412.245333 573.44 0.896z"
                     ></path>
                 </svg>
-                <label class="text-white text-[10px] antialiased {{menuSelected=='microsoft'?'menu-selected':''}}">微软</label>
+                <label class="text-stone-950 text-[10px] antialiased {{menuSelected=='microsoft'?'menu-selected':''}}">微软</label>
             </li>
             <li class="w-16 h-16 flex flex-col justify-center items-center  select-none"
                 (click)="$event.stopPropagation();onMenuClick($event, 'wallpapers', 2)">
-                <svg class="w-6 h-6  fill-[#d1d5db]   {{menuSelected=='wallpapers'?'menu-selected':''}}"
+                <svg class="w-6 h-6  fill-stone-950  {{menuSelected=='wallpapers'?'menu-selected':''}}"
                      viewBox="0 0 1024 1024"
                      xmlns="http://www.w3.org/2000/svg">
                     <path d="M373.82 869.432l138.848-504.657L650.18 869.432h141.518L1024 179.2H855.781L718.269 689.197 582.09 179.2H441.91L305.73 689.197 168.22 179.2H0l232.302 690.232z"
                     ></path>
                 </svg>
-                <label class="text-white text-[10px] antialiased {{menuSelected=='wallpapers'?'menu-selected':''}}">wallpapers</label>
+                <label class="text-stone-950 text-[10px] antialiased {{menuSelected=='wallpapers'?'menu-selected':''}}">wallpapers</label>
             </li>
 
             <li class="w-16 h-16 flex flex-col justify-center items-center  select-none"
                 (click)="$event.stopPropagation();onMenuClick($event, 'anime',3)">
-                <svg  t="1704628145924" class="w-6 h-6  fill-[#d1d5db]   {{menuSelected=='anime'?'menu-selected':''}}" viewBox="0 0 1071 1024" version="1.1"
-                     xmlns="http://www.w3.org/2000/svg" p-id="1559" width="200" height="200">
+                <svg   class="w-6 h-6  fill-stone-950   {{menuSelected=='anime'?'menu-selected':''}}" viewBox="0 0 1071 1024" version="1.1"
+                     xmlns="http://www.w3.org/2000/svg"  width="200" height="200">
                     <path d="M887.365188 952.783894H184.455499C82.758914 952.783894 0 876.72402 0 783.272408V336.111466c0-93.477378 82.758914-169.537251 184.455499-169.537252h704.043373c51.969094 0 101.67082 20.225949 136.377002 55.498973A159.256801 159.256801 0 0 1 1071.846453 336.420652V783.272408c0 93.451613-82.758914 169.511486-184.481265 169.511486zM184.455499 251.600495c-54.829069 0-99.429218 37.901109-99.429218 84.510971V783.272408c0 46.609861 44.600149 84.51097 99.429218 84.51097H887.365188c54.829069 0 99.429218-37.901109 99.429218-84.51097V335.415796a74.539706 74.539706 0 0 0-22.570613-53.72115c-18.808844-19.11803-46.377972-30.09415-75.750687-30.094151z"
                            p-id="1560"></path>
                     <path d="M397.794168 495.316736L219.651226 535.923226a36.355177 36.355177 0 0 1-15.175903-71.112889l178.142942-40.55496a35.8141 35.8141 0 0 1 43.131513 27.955611c4.302845 19.169562-8.786049 38.854434-27.95561 43.157279zM674.052285 495.316736c-19.169562-4.302845-32.258456-23.987717-27.955611-43.157279a35.8141 35.8141 0 0 1 43.131514-27.955611l178.142941 40.55496a36.355177 36.355177 0 0 1-15.175902 71.112889l-178.142942-40.554959zM268.811876 1023.999845a56.684187 56.684187 0 0 1-56.684187-56.813015v-42.590437a56.684187 56.684187 0 1 1 113.600264 0v42.590437a56.684187 56.684187 0 0 1-56.684187 56.813015zM803.034577 1023.999845a56.684187 56.684187 0 0 1-56.813015-56.813015v-42.590437a56.684187 56.684187 0 1 1 113.600264 0v42.590437a56.684187 56.684187 0 0 1-56.684187 56.813015z"
@@ -54,12 +54,12 @@
                     <path d="M595.621982 756.373184a39.447041 39.447041 0 0 1-30.738289-14.686357L533.346672 702.677799l-32.438814 38.467951a39.730462 39.730462 0 0 1-55.473207 5.153108l-44.316729-36.535535a23.188986 23.188986 0 1 1 29.501543-35.762569l39.163621 32.258455 33.495202-39.601634a39.6274 39.6274 0 0 1 61.038563 0.566842l32.722236 40.323069 45.424646-33.933215A23.188986 23.188986 0 1 1 669.904033 710.665117l-50.655051 37.798047a39.369745 39.369745 0 0 1-23.627 7.91002z"
                           p-id="1564"></path>
                 </svg>
-                <label class="text-white text-[10px] antialiased {{menuSelected=='anime'?'menu-selected':''}}">二次元</label>
+                <label class="text-stone-950 text-[10px] antialiased {{menuSelected=='anime'?'menu-selected':''}}">二次元</label>
             </li>
         </ul>
     </div>
     <div class="w-16 h-16 flex justify-center items-center select-none">
-        <svg (click)="refreshClick($event)" class="w-7 h-7 fill-dark dark:fill-white" viewBox="0 0 1024 1024"
+        <svg (click)="refreshClick($event)" class="w-7 h-7 fill-white" viewBox="0 0 1024 1024"
              xmlns="http://www.w3.org/2000/svg"
              width="256" height="256">
             <path d="M512.5 950C270.9 950 75 754.1 75 512.5S270.9 75 512.5 75 950 270.9 950 512.5 754.1 950 512.5 950z m0-50c214 0 387.5-173.5 387.5-387.5S726.5 125 512.5 125 125 298.5 125 512.5 298.5 900 512.5 900z"></path>

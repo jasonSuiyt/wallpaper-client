@@ -55,10 +55,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "bing-wallpaper-client:build:production"
+              "buildTarget": "wallpaper-client:build:production"
             },
             "development": {
-              "buildTarget": "bing-wallpaper-client:build:development"
+              "buildTarget": "wallpaper-client:build:development"
             }
           },
           "defaultConfiguration": "development"
