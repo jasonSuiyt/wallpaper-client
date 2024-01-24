@@ -1,5 +1,5 @@
 import {MessageService} from '../service/message.service';
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {invoke} from '@tauri-apps/api';
 import {animate, state, style, transition, trigger} from "@angular/animations";
@@ -14,6 +14,8 @@ export class MenuComponent implements OnInit {
 
     constructor(private router: Router, private messageSrv: MessageService) {
     }
+
+    @ViewChild("loadingIcon") loadingIcon!: ElementRef;
 
     ngOnInit(): void {
 
@@ -35,7 +37,7 @@ export class MenuComponent implements OnInit {
     }
 
     async refreshClick($event: MouseEvent) {
-        const refresh_icon = $event.target as HTMLOrSVGImageElement
+        const refresh_icon = this.loadingIcon.nativeElement as HTMLOrSVGImageElement
         refresh_icon.classList.add('animate-spin');
         if(this.menuSelected == 'bing') {
             await invoke("refresh", {source: 'bing'});
