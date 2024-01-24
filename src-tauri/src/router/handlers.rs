@@ -1,17 +1,16 @@
-use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use reqwest::header::{ACCEPT, HeaderMap, HeaderValue, USER_AGENT};
+use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use crate::dao::models::{Bing, DownloadPayload, NewBing};
 use crate::dao::wallpaper_dao;
 use crate::service::get_img_service;
 use tokio::time::Duration;
 
-use futures_util::{AsyncReadExt, StreamExt};
+use futures_util::StreamExt;
 use tauri::Window;
 use crate::service::trans_service::translate;
 use std::fs;
@@ -26,15 +25,15 @@ pub async fn refresh(window: Window, source: String) {
     if page.data.len() > 0 {
         refresh_sync(&window, &source, total_page).await;
     }else {
-        refresh_async(window, source, total_page, &count).await;
+        refresh_async(window, &source, total_page, &count).await;
     }
 }
 
-async fn refresh_async(window: Window, source: String, total_page: i32, count: &Arc<Mutex<i32>>) {
+async fn refresh_async(window: Window, source: &str, total_page: i32, count: &Arc<Mutex<i32>>) {
+
     for i in 1..total_page + 1 {
         let my_count = Arc::clone(&count);
-        let source = source.clone();
-
+        let source = source.to_owned();
         tokio::spawn(async move {
             let bing_vec_res = get_image_vec(i, &source).await;
             match bing_vec_res {
@@ -69,7 +68,7 @@ async fn refresh_async(window: Window, source: String, total_page: i32, count: &
     }
 }
 
-async fn get_image_vec(i: i32, source: &String) -> Result<Vec<NewBing>, anyhow::Error> {
+async fn get_image_vec(i: i32, source: &str) -> Result<Vec<NewBing>, anyhow::Error> {
     let bing_vec_res;
     if source == "bing" {
         bing_vec_res = get_img_service::bing_request(i).await;
@@ -84,7 +83,7 @@ async fn get_image_vec(i: i32, source: &String) -> Result<Vec<NewBing>, anyhow::
     bing_vec_res
 }
 
-async fn refresh_sync(window: &Window, source: &String, total_page: i32) {
+async fn refresh_sync(window: &Window, source: &str, total_page: i32) {
     for i in 1..total_page + 1 {
         let bing_vec_res = get_image_vec(i, &source).await;
         match bing_vec_res {

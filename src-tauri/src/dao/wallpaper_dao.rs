@@ -1,6 +1,5 @@
-use diesel::{Connection, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper, SqliteConnection};
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use diesel::associations::HasTable;
-use diesel::connection::SimpleConnection;
 use crate::dao::db;
 
 use crate::dao::models::{Bing, NewBing, Page};
