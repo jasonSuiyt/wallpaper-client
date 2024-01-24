@@ -216,13 +216,14 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
         text: "设置壁纸中".to_string(),
     }).unwrap();
 
-    match wallpaper::set_from_path(&wallpaper.uhd_file_path) {
-        Ok(_) => {}
-        Err(e) => {
-            println!("{}", e);
+    if Path::new(&&wallpaper.uhd_file_path).exists(){
+        match wallpaper::set_from_path(&wallpaper.uhd_file_path) {
+            Ok(_) => {}
+            Err(e) => {
+                println!("{}", e);
+            }
         }
     }
-
     window.emit("download_progress", DownloadPayload {
         id: wallpaper.id.clone(),
         process: 0f64,
