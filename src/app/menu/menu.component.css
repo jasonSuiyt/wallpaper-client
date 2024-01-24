@@ -1,10 +1,16 @@
-.menu-selected {
-    transition: fill 1s;
-    @apply fill-orange-600;
-    @apply text-orange-600;
-}
+/*.menu-selected span,.menu-selected label{*/
+/*    @apply fill-pink-500;*/
+/*    @apply text-pink-500;*/
+/*    transition:*/
+/*            fill .5s ease-in,*/
+/*            color .5s ease-in;*/
+/*}*/
 
 .menu-active{
-    transition: top .5s cubic-bezier(0.1, 0.7, 1, 0.1);
+    transition: top .5s ease-in;
     /*transition-timing-function: cubic-bezier(0.1, 0.7, 1, 0.1);*/
+}
+
+.icon{
+    @apply  text-stone-950 text-[30px];
 }
