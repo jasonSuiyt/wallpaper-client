@@ -48,11 +48,7 @@ export class WallpaperViewComponent {
       })
     });
 
-    await appWindow.listen('bing_refresh_finished', async (data) => {
-      await this.onHomeRefresh();
-    });
-
-    await appWindow.listen('spotlight_refresh_finished', async (data) => {
+    await appWindow.listen('refresh_finished', async (data) => {
       await this.onHomeRefresh();
     });
   }

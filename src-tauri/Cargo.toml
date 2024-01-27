@@ -38,6 +38,7 @@ diesel_migrations = "2.1.0"
 dirs = "5.0.1"
 rayon = "1.8.0"
 wallpaper = "3.2.0"
+async-trait = "0.1.77"
 
 
 [features]

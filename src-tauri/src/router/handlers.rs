@@ -14,38 +14,49 @@ use futures_util::StreamExt;
 use tauri::Window;
 use crate::service::trans_service::translate;
 use std::fs;
+use std::str::FromStr;
+use std::sync::atomic::AtomicI64;
+use crate::service::get_img_service::ImageSource;
+use tauri::api::dialog;
 
 
 #[tauri::command]
 pub async fn refresh(window: Window, source: String) {
-    let total_page = get_img_service::get_total_page(&source).await;
-    println!("total_page={}", total_page);
-    let count = Arc::new(Mutex::new(0));
-    let page = wallpaper_dao::find_all(1, &source).unwrap();
-    if page.data.len() > 0 {
-        refresh_sync(&window, &source, total_page).await;
-    }else {
-        refresh_async(window, &source, total_page, &count).await;
+    let total_page = get_img_service::GetImageFactory::new(ImageSource::from_str(&source).unwrap()).get_totals().await;
+    match total_page {
+        Ok(total_page) => {
+            println!("total_page={}", total_page);
+            let page = wallpaper_dao::find_all(1, &source).unwrap();
+            if page.data.len() > 0 {
+                refresh_sync(&window, &source, total_page).await;
+            } else {
+                refresh_async(window, &source, total_page, total_page).await;
+            }
+        }
+        Err(_) => {
+            window.emit("bing_refresh_finished", true).unwrap();
+            dialog::message(Some(&window), "系统提示", "网络连接异常");
+        }
     }
 }
 
-async fn refresh_async(window: Window, source: &str, total_page: i32, count: &Arc<Mutex<i32>>) {
-
+async fn refresh_async(window: Window, source: &str, total_page: i32, count: i32) {
+    let my_count = Arc::new(Mutex::new(count));
     for i in 1..total_page + 1 {
-        let my_count = Arc::clone(&count);
         let source = source.to_owned();
+        let count = my_count.clone();
         tokio::spawn(async move {
             let bing_vec_res = get_image_vec(i, &source).await;
             match bing_vec_res {
                 Ok(mut bing_vec) => {
                     translate_title(&source, &mut bing_vec).await;
                     save_normal_img(&mut bing_vec).await;
-                    let mut lock = my_count.lock().await;
+                    let mut lock = count.lock().await;
                     wallpaper_dao::insert(bing_vec);
                     *lock += 1;
                 }
                 Err(err) => {
-                    let mut lock = my_count.lock().await;
+                    let mut lock = count.lock().await;
                     println!("异常信息 {:?}", err);
                     *lock += 1;
                 }
@@ -54,7 +65,7 @@ async fn refresh_async(window: Window, source: &str, total_page: i32, count: &Ar
     }
 
     loop {
-        if *count.lock().await >= total_page {
+        if *my_count.lock().await >= total_page {
             println!("refresh end all");
             if source == "bing" {
                 window.emit("bing_refresh_finished", true).unwrap();
@@ -64,23 +75,20 @@ async fn refresh_async(window: Window, source: &str, total_page: i32, count: &Ar
             break;
         }
         tokio::time::sleep(Duration::from_millis(1000)).await;
-        println!("{}", *count.lock().await)
+        println!("{}", *my_count.lock().await)
     }
 }
 
 async fn get_image_vec(i: i32, source: &str) -> Result<Vec<NewBing>, anyhow::Error> {
-    let bing_vec_res;
-    if source == "bing" {
-        bing_vec_res = get_img_service::bing_request(i).await;
-    } else if source == "spotlight" {
-        bing_vec_res = get_img_service::spotlight_request(i).await;
-    } else if source == "anime" {
-        println!("page={}", i);
-        bing_vec_res = get_img_service::anime_request(i).await;
-    } else {
-        bing_vec_res = get_img_service::wallpapers_request(i).await;
-    }
-    bing_vec_res
+    let factory = get_img_service::GetImageFactory::new(ImageSource::from_str(&source).unwrap()).get_page(i).await;
+    return match factory {
+        Ok(vec) => {
+            Ok(vec)
+        }
+        Err(_) => {
+            Ok(vec![])
+        }
+    };
 }
 
 async fn refresh_sync(window: &Window, source: &str, total_page: i32) {
@@ -100,17 +108,12 @@ async fn refresh_sync(window: &Window, source: &str, total_page: i32) {
             }
         }
     }
-
-    if source == "bing" {
-        window.emit("bing_refresh_finished", true).unwrap();
-    } else {
-        window.emit("spotlight_refresh_finished", true).unwrap();
-    }
+    window.emit("refresh_finished", true).unwrap();
 }
 
 async fn translate_title(source: &str, bing_vec: &mut Vec<NewBing>) {
     if source != "bing" && source != "anime" {
-        for x in  bing_vec {
+        for x in bing_vec {
             if Path::new(&x.normal_file_path).exists() == false {
                 let result = translate(x.name.clone()).await;
                 match result {
@@ -163,37 +166,37 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
         let client = reqwest::Client::new();
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"));
-         match  client.get(&wallpaper.uhd_url.clone()).headers(headers).send().await {
-             Ok(res) => {
-                 let content_length = res.content_length().unwrap() as f64;
-                 let mut stream = res.bytes_stream();
-                 let mut download_size: u64 = 0;
-                 let mut all_bytes = vec![];
-                 while let Some(item) = stream.next().await {
-                     let bytes: &[u8] = &item.unwrap();
-                     bytes[..bytes.len()].iter().for_each(|x|all_bytes.push(x.clone()));
-                     let size = bytes.len() as u64;
-                     download_size += size;
-                     let download_process = download_size as f64 / content_length;
-                     let download_process_text = download_process * 100f64;
-                     window.emit("download_progress", DownloadPayload {
-                         id: wallpaper.id.clone(),
-                         text: format!("下载中 {:.2} %", download_process_text),
-                         process: download_process,
-                     }).unwrap();
-                 }
-                 match File::create(&wallpaper.uhd_file_path) {
-                     Ok(mut file) => {
-                         file.write_all(all_bytes.as_slice()).unwrap();
-                     }
-                     Err(_) => {}
-                 }
-
-             }
-             Err(e) => {
-                 eprintln!("{}", e);
-             }
-         }
+        match client.get(&wallpaper.uhd_url.clone()).headers(headers).send().await {
+            Ok(res) => {
+                let content_length = res.content_length().unwrap() as f64;
+                let mut stream = res.bytes_stream();
+                let mut download_size: u64 = 0;
+                let mut all_bytes = vec![];
+                while let Some(item) = stream.next().await {
+                    let bytes: &[u8] = &item.unwrap();
+                    bytes[..bytes.len()].iter().for_each(|x| all_bytes.push(x.clone()));
+                    let size = bytes.len() as u64;
+                    download_size += size;
+                    let download_process = download_size as f64 / content_length;
+                    let download_process_text = download_process * 100f64;
+                    window.emit("download_progress", DownloadPayload {
+                        id: wallpaper.id.clone(),
+                        text: format!("下载中 {:.2} %", download_process_text),
+                        process: download_process,
+                    }).unwrap();
+                }
+                match File::create(&wallpaper.uhd_file_path) {
+                    Ok(mut file) => {
+                        file.write_all(all_bytes.as_slice()).unwrap();
+                    }
+                    Err(_) => {}
+                }
+            }
+            Err(e) => {
+                eprintln!("{}", e);
+                dialog::message(Some(&window), "系统提示", "网络连接异常");
+            }
+        }
     }
 
     if Path::new(&wallpaper.normal_file_path).exists() == false {
@@ -215,7 +218,7 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
         text: "设置壁纸中".to_string(),
     }).unwrap();
 
-    if Path::new(&&wallpaper.uhd_file_path).exists(){
+    if Path::new(&&wallpaper.uhd_file_path).exists() {
         match wallpaper::set_from_path(&wallpaper.uhd_file_path) {
             Ok(_) => {}
             Err(e) => {
@@ -230,8 +233,6 @@ pub async fn set_wallpaper(window: Window, wallpaper: Bing) -> bool {
     }).unwrap();
     true
 }
-
-
 
 
 #[cfg(test)]
