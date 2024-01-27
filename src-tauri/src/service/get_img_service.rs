@@ -21,40 +21,40 @@ lazy_static! {
 
 
 
-    static ref SPOTLIGHT_ARTICLE_SELECTOR: Selector = htmler::Selector::parse(r#"article"#).unwrap();
-    static ref SPOTLIGHT_DATE_SELECTOR: Selector = htmler::Selector::parse(r#"span[class="date"]"#).unwrap();
-    static ref SPOTLIGHT_NAME_SELECTOR: Selector = htmler::Selector::parse(r#"span[class="entry-title hidden"]"#).unwrap();
-    static ref SPOTLIGHT_IMG_SELECTOR: Selector = htmler::Selector::parse(r#"img"#).unwrap();
-    static ref SPOTLIGHT_PAGE_NUMBERS_SELECTOR: Selector = htmler::Selector::parse(r#"a[class="page-numbers"]"#).unwrap();
+    static ref SPOTLIGHT_ARTICLE_SELECTOR: Selector = Selector::parse(r#"article"#).unwrap();
+    static ref SPOTLIGHT_DATE_SELECTOR: Selector = Selector::parse(r#"span[class="date"]"#).unwrap();
+    static ref SPOTLIGHT_NAME_SELECTOR: Selector = Selector::parse(r#"span[class="entry-title hidden"]"#).unwrap();
+    static ref SPOTLIGHT_IMG_SELECTOR: Selector = Selector::parse(r#"img"#).unwrap();
+    static ref SPOTLIGHT_PAGE_NUMBERS_SELECTOR: Selector = Selector::parse(r#"a[class="page-numbers"]"#).unwrap();
 
 
     static ref BING_UHD_PATH: String = format!("{}{}",  get_home(),  "/wallpaper/bing/images/uhd/");
     static ref BING_NORMAL_PATH: String = format!("{}{}", get_home(), "/wallpaper/bing/images/normal/");
 
-    static ref BING_IMG_LIST_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="col-md-6 col-lg-4"]"#).unwrap();
-    static ref BING_IMG_ROW_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="image-list__container"]"#).unwrap();
-    static ref BING_PIC_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="image-list__picture lazyload"]"#).unwrap();
-    static ref BING_DESC_SELECTOR: Selector = htmler::Selector::parse(r#"a[class="image-list__link"]"#).unwrap();
-    static ref BING_DATE_SELECTOR: Selector = htmler::Selector::parse(r#"span[class="text-gray"]"#).unwrap();
-    static ref BING_PAGE_NUMBERS_SELECTOR: Selector = htmler::Selector::parse(r#"a[class="page-link"]"#).unwrap();
+    static ref BING_IMG_LIST_SELECTOR: Selector = Selector::parse(r#"div[class="col-md-6 col-lg-4"]"#).unwrap();
+    static ref BING_IMG_ROW_SELECTOR: Selector = Selector::parse(r#"div[class="image-list__container"]"#).unwrap();
+    static ref BING_PIC_SELECTOR: Selector = Selector::parse(r#"div[class="image-list__picture lazyload"]"#).unwrap();
+    static ref BING_DESC_SELECTOR: Selector = Selector::parse(r#"a[class="image-list__link"]"#).unwrap();
+    static ref BING_DATE_SELECTOR: Selector = Selector::parse(r#"span[class="text-gray"]"#).unwrap();
+    static ref BING_PAGE_NUMBERS_SELECTOR: Selector = Selector::parse(r#"a[class="page-link"]"#).unwrap();
 
 
 
     static ref ANIME_UHD_PATH: String = format!("{}{}", get_home(), "/wallpaper/anime/images/uhd/");
     static ref ANIME_NORMAL_PATH: String = format!("{}{}", get_home(), "/wallpaper/anime/images/normal/");
     static ref NAIME_PAGE_NUMBERS_SELECTOR: Selector = Selector::parse(r#"h2"#).unwrap();
-    static ref NAIME_LI_SELECTOR: Selector = htmler::Selector::parse(r#"li"#).unwrap();
-    static ref ANIME_NAME_SELECTOR: Selector =  htmler::Selector::parse(r#"span[class="wall-res"]"#).unwrap();
-    static ref ANIME_SECTION_SELECTOR: Selector =  htmler::Selector::parse(r#"section[class="thumb-listing-page"]"#).unwrap();
-    static ref ANIME_IMG_SELECTOR: Selector =  htmler::Selector::parse(r#"img[class="lazyload"]"#).unwrap();
+    static ref NAIME_LI_SELECTOR: Selector = Selector::parse(r#"li"#).unwrap();
+    static ref ANIME_NAME_SELECTOR: Selector =  Selector::parse(r#"span[class="wall-res"]"#).unwrap();
+    static ref ANIME_SECTION_SELECTOR: Selector =  Selector::parse(r#"section[class="thumb-listing-page"]"#).unwrap();
+    static ref ANIME_IMG_SELECTOR: Selector =  Selector::parse(r#"img[class="lazyload"]"#).unwrap();
 
 
     static ref WALL_UHD_PATH: String = format!("{}{}", get_home() ,"/wallpaper/wall/images/uhd/");
     static ref WALL_NORMAL_PATH: String =format!("{}{}", get_home() , "/wallpaper/wall/images/normal/");
 
-    static ref WALL_PAGE_NUMBERS_SELECTOR: Selector = htmler::Selector::parse(r#"p[class="pages"]"#).unwrap();
-    static ref WALL_PICS_SELECTOR: Selector = htmler::Selector::parse(r#"div[class="pics"]"#).unwrap();
-    static ref WALL_PICS_VEC_SELECTOR: Selector = htmler::Selector::parse(r#"p"#).unwrap();
+    static ref WALL_PAGE_NUMBERS_SELECTOR: Selector = Selector::parse(r#"p[class="pages"]"#).unwrap();
+    static ref WALL_PICS_SELECTOR: Selector = Selector::parse(r#"div[class="pics"]"#).unwrap();
+    static ref WALL_PICS_VEC_SELECTOR: Selector = Selector::parse(r#"p"#).unwrap();
     static ref WALL_URL: String = "https://wallpapershome.com".to_string();
     static ref HTTP_TIME_OUT: Duration = Duration::from_secs(360);
 
@@ -71,8 +71,8 @@ pub struct SpotlightImage(String);
 
 #[async_trait::async_trait]
 pub(crate) trait ImageTrait {
-    async fn get_totals(&self) -> anyhow::Result<i32, anyhow::Error>;
-    async fn get_page(&self, page:i32) -> anyhow::Result<Vec<NewBing>, anyhow::Error>;
+    async fn get_totals(&self) -> anyhow::Result<i32, Error>;
+    async fn get_page(&self, page:i32) -> anyhow::Result<Vec<NewBing>, Error>;
 }
 
 #[async_trait::async_trait]
