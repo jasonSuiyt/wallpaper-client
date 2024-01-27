@@ -15,7 +15,6 @@ use tauri::Window;
 use crate::service::trans_service::translate;
 use std::fs;
 use std::str::FromStr;
-use std::sync::atomic::AtomicI64;
 use crate::service::get_img_service::ImageSource;
 use tauri::api::dialog;
 
@@ -30,8 +29,9 @@ pub async fn refresh(window: Window, source: String) {
             if page.data.len() > 0 {
                 refresh_sync(&window, &source, total_page).await;
             } else {
-                refresh_async(window, &source, total_page, total_page).await;
+                refresh_async(window, &source, total_page).await;
             }
+
         }
         Err(_) => {
             window.emit("bing_refresh_finished", true).unwrap();
@@ -40,8 +40,8 @@ pub async fn refresh(window: Window, source: String) {
     }
 }
 
-async fn refresh_async(window: Window, source: &str, total_page: i32, count: i32) {
-    let my_count = Arc::new(Mutex::new(count));
+async fn refresh_async(window: Window, source: &str, total_page: i32) {
+    let my_count = Arc::new(Mutex::new(0));
     for i in 1..total_page + 1 {
         let source = source.to_owned();
         let count = my_count.clone();

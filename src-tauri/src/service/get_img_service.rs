@@ -7,7 +7,7 @@ use anyhow::{anyhow, Context, Error};
 use chrono::{Local, NaiveDate};
 use htmler::Selector;
 use lazy_static::lazy_static;
-use reqwest::{Response, StatusCode};
+use reqwest::StatusCode;
 
 use crate::dao::models::NewBing;
 
@@ -425,11 +425,11 @@ struct WallModal {
 
 
 fn create_dir(path: String) {
-    println!("path: {}", path);
-    println!("home: {}", get_home());
-    println!("{}", Path::exists(path.as_ref()));
     if Path::exists(path.as_ref()) == false {
-        fs::create_dir_all(&path).expect("TODO: panic message");
+        match fs::create_dir_all(&path) {
+            Ok(_) => {}
+            Err(_) => {}
+        }
     }
 }
 
