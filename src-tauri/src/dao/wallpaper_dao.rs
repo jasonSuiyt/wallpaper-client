@@ -5,12 +5,13 @@ use crate::dao::db;
 use crate::dao::models::{Bing, NewBing, Page};
 use crate::dao::schema::bing::{created_date, source};
 use crate::dao::schema::bing::dsl::bing;
+use crate::service::get_img_service::ImageSource;
 
-pub(crate) fn find_all(current_page:i64, other_source: &str) -> anyhow::Result<Page> {
+pub(crate) fn find_all(current_page:i64, other_source: ImageSource) -> anyhow::Result<Page> {
     let mut connection = db::establish_db_connection();
-    let total = bing.count().filter(source.eq(other_source)).get_result::<i64>(&mut connection);
+    let total = bing.count().filter(source.eq(other_source.to_string())).get_result::<i64>(&mut connection);
     let _offset: i64 = (current_page - 1) * 60;
-    let record = bing.select(Bing::as_select()).filter(source.eq(other_source)).limit(60).offset(_offset).order_by(created_date.desc()).load(&mut connection);
+    let record = bing.select(Bing::as_select()).filter(source.eq(other_source.to_string())).limit(60).offset(_offset).order_by(created_date.desc()).load(&mut connection);
         
     if let (Ok(t), Ok(r)) = (total, record){
         return Ok(Page{
@@ -60,7 +61,7 @@ mod tests {
 
     #[test]
     fn find_all_test(){
-        let result = find_all(1,"bing").unwrap();
+        let result = find_all(1,ImageSource::BING).unwrap();
 
         println!("{:#?}", result);
     }

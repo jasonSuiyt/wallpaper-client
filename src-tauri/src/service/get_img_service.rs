@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::fs;
 use std::path::Path;
 use std::str::FromStr;
@@ -359,11 +360,24 @@ impl ImageTrait for SpotlightImage {
     }
 }
 
+#[derive(Clone, Copy, Debug,PartialEq)]
 pub(crate) enum ImageSource {
     BING,
     SPOTLIGHT,
     WALLPAPERS,
     ANIME,
+}
+
+impl Display for ImageSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            ImageSource::BING => "bing".to_string(),
+            ImageSource::SPOTLIGHT => "spotlight".to_string(),
+            ImageSource::WALLPAPERS => "wallpapers".to_string(),
+            ImageSource::ANIME => "anime".to_string(),
+        };
+        write!(f, "{}", str)
+    }
 }
 
 impl FromStr for ImageSource{
