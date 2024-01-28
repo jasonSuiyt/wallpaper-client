@@ -14,13 +14,12 @@ use crate::service::get_img_service::ImageSource;
 use crate::service::trans_service::translate;
 use futures_util::StreamExt;
 use std::fs;
-use std::str::FromStr;
 use tauri::api::dialog;
 use tauri::Window;
 
 #[tauri::command]
 pub async fn refresh(window: Window, source: String) {
-    let image_source = ImageSource::from_str(&source).unwrap();
+    let image_source = source.parse::<ImageSource>().unwrap();
     let total_page = get_img_service::GetImageFactory::new(image_source)
         .get_totals()
         .await;
@@ -137,7 +136,7 @@ async fn save_normal_img(bing_vec: &mut Vec<NewBing>) {
 #[tauri::command]
 pub fn get_wallpaper(current_page: i64, source: String) -> Vec<Bing> {
     println!("current page {} source {}", current_page, source);
-    let image_source = ImageSource::from_str(source.as_str()).unwrap();
+    let image_source = source.parse::<ImageSource>().unwrap();
     if let Ok(res) = wallpaper_dao::find_all(current_page, image_source) {
         return res.data;
     }

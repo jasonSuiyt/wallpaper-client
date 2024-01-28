@@ -18,7 +18,6 @@ pub struct Bing {
     pub created_date: NaiveDate,
 }
 
-
 #[derive(Insertable, Clone, Debug)]
 #[diesel(table_name = crate::dao::schema::bing)]
 pub struct NewBing {
@@ -28,11 +27,11 @@ pub struct NewBing {
     pub uhd_file_path: String,
     pub normal_file_path: String,
     pub source: String,
-    pub created_date: NaiveDate
+    pub created_date: NaiveDate,
 }
 
 #[derive(Clone, Debug)]
-pub struct Page{
+pub struct Page {
     pub data: Vec<Bing>,
     pub totals: i64,
     pub current_page: i64,
@@ -42,5 +41,5 @@ pub struct Page{
 pub struct DownloadPayload {
     pub id: i32,
     pub process: f64,
-    pub text: String
+    pub text: String,
 }
