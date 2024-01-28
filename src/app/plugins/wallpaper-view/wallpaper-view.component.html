@@ -1,3 +1,12 @@
+<!--@if (downloadedProcesses>0 && downloadedProcesses<100){-->
+<!--    <div class="w-full h-[30px] top-0 text-white bg-gray-900 opacity-70">-->
+<!--        <div class="h-[30px]  bg-gradient-to-r from-indigo-500 via-purple-500 to-green-700"  [style.width]="downloadedProcesses+'%'">-->
+<!--        </div>-->
+<!--        <div  class="h-[30px] absolute top-0 right-2  flex justify-center items-center p-1.5">-->
+<!--            <label class="text-[10px] text-white text-s antialiased font-thin">已加载{{downloadedProcesses | number:'1.2-2'}}%</label>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--}-->
 <div #wallpaper class="overflow-auto" style="height: calc(100vh)" (scroll)="onScroll($event)">
     <div class="grid gap-x-3 gap-y-3 p-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
         <div *ngFor="let wallpaper of wallpaper_list" class="overflow-hidden object-cover rounded-lg shadow-md relative"

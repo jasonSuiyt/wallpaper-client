@@ -1,7 +1,6 @@
 import {ChangeDetectorRef, Component, ElementRef, HostListener, Input, ViewChild} from '@angular/core';
 import {Wallpaper} from "../../modal/wallpaper";
 import {DropDownService} from "../../service/drop-down.service";
-import {MessageService} from "../../service/message.service";
 import {appWindow} from "@tauri-apps/api/window";
 import {Payload} from "../../modal/payload";
 import {invoke} from "@tauri-apps/api";
@@ -25,6 +24,8 @@ export class WallpaperViewComponent {
   currentPage = 1;
 
   havePage = true;
+
+  downloadedProcesses = 0;
 
   constructor(private dropDownService: DropDownService, public changeDetectorRef:ChangeDetectorRef) {
 
@@ -51,6 +52,10 @@ export class WallpaperViewComponent {
     await appWindow.listen('refresh_finished', async (data) => {
       await this.onHomeRefresh();
     });
+    await appWindow.listen('downloaded_progress', async(data)=>{
+      this.downloadedProcesses = data.payload as number;
+      this.changeDetectorRef.detectChanges();
+    })
   }
 
   async onHomeRefresh(){

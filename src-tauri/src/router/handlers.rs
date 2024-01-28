@@ -27,11 +27,12 @@ pub async fn refresh(window: Window, source: String) {
         Ok(total_page) => {
             println!("total_page={}", total_page);
             let page = wallpaper_dao::find_all(1, image_source).unwrap();
-            if page.data.len() > 0 {
-                refresh_sync(&window, image_source, total_page).await;
-            } else {
-                refresh_async(window, image_source, total_page).await;
-            }
+            // if page.data.len() > 0 {
+            //     refresh_sync(&window, image_source, total_page).await;
+            // } else {
+            //     refresh_async(window, image_source, total_page).await;
+            // }
+            refresh_async(window, image_source, total_page).await;
         }
         Err(_) => {
             window.emit("bing_refresh_finished", true).unwrap();
@@ -67,10 +68,13 @@ async fn refresh_async(window: Window, source: ImageSource, total_page: i32) {
         if *my_count.lock().await >= total_page {
             println!("refresh end all");
             window.emit("refresh_finished", true).unwrap();
+            window.emit("downloaded_progress", 100).unwrap();
             break;
         }
-        tokio::time::sleep(Duration::from_millis(1000)).await;
-        println!("{}", *my_count.lock().await)
+        tokio::time::sleep(Duration::from_secs(1)).await;
+        let download_process = *my_count.lock().await as f64 / total_page as f64;
+        let download_process_text = download_process * 100f64;
+        window.emit("downloaded_progress", download_process_text).unwrap();
     }
 }
 

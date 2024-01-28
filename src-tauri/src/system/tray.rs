@@ -18,7 +18,6 @@ pub fn system_tray() -> SystemTray {
 pub fn tray_handler(app: &AppHandle, event: SystemTrayEvent) {
     // 获取应用窗口
     let window = app.get_window("main").unwrap();
-    // let parent_window = Some(&window);
 
     match event {
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {

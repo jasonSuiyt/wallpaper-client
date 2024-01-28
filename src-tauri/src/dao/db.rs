@@ -53,17 +53,29 @@ fn db_file_exists() -> bool {
 #[cfg(target_os = "macos")]
 fn get_db_path() -> String {
     let home_dir = dirs::home_dir().unwrap();
-    home_dir.to_str().unwrap().to_string() + "/wallpaper/wallpaper.sqlite"
+    format!(
+        "{}{}",
+        home_dir.to_str().unwrap().to_string(),
+        "/wallpaper/wallpaper.sqlite"
+    )
 }
 
 #[cfg(target_os = "windows")]
 fn get_db_path() -> String {
     let home_dir = dirs::home_dir().unwrap();
-    home_dir.to_str().unwrap().to_string() + "\\wallpaper\\wallpaper.sqlite"
+    format!(
+        "{}{}",
+        home_dir.to_str().unwrap().to_string(),
+        "\\wallpaper\\wallpaper.sqlite"
+    )
 }
 
 #[cfg(target_os = "linux")]
 fn get_db_path() -> String {
     let home_dir = dirs::home_dir().unwrap();
-    home_dir.to_str().unwrap().to_string() + "/wallpaper/wallpaper.sqlite"
+    format!(
+        "{}{}",
+        home_dir.to_str().unwrap().to_string(),
+        "/wallpaper/wallpaper.sqlite"
+    )
 }
