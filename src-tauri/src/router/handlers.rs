@@ -27,12 +27,11 @@ pub async fn refresh(window: Window, source: String) {
         Ok(total_page) => {
             println!("total_page={}", total_page);
             let page = wallpaper_dao::find_all(1, image_source).unwrap();
-            // if page.data.len() > 0 {
-            //     refresh_sync(&window, image_source, total_page).await;
-            // } else {
-            //     refresh_async(window, image_source, total_page).await;
-            // }
-            refresh_async(window, image_source, total_page).await;
+            if page.data.len() > 0 {
+                refresh_sync(&window, image_source, total_page).await;
+            } else {
+                refresh_async(window, image_source, total_page).await;
+            }
         }
         Err(_) => {
             window.emit("bing_refresh_finished", true).unwrap();
